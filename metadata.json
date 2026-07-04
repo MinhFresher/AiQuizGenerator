@@ -1,0 +1,6 @@
+{
+  "name": "PrepAI Study Studio",
+  "description": "An interactive study companion. Upload PDFs, Word documents, or notes to generate adaptive multiple-choice tests, recall flashcards, and clear study summaries.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
