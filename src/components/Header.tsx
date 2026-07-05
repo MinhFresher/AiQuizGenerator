@@ -1,15 +1,23 @@
 import React from 'react';
-import { Brain, Layers } from 'lucide-react';
+import { Brain, Layers, Sun, Moon } from 'lucide-react';
 
 interface HeaderProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
   onLogoClick: () => void;
+  darkMode: boolean;
+  toggleTheme: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen, onLogoClick }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  isSidebarOpen, 
+  setIsSidebarOpen, 
+  onLogoClick,
+  darkMode,
+  toggleTheme,
+}) => {
   return (
-    <header className="border-b border-stone-200 bg-[#FCFAF7]/95 px-6 py-4 sticky top-0 z-40 backdrop-blur-md flex items-center justify-between">
+    <header className="border-b border-stone-200 bg-[var(--bg-header)]/95 px-6 py-4 sticky top-0 z-40 backdrop-blur-md flex items-center justify-between">
       <div 
         onClick={onLogoClick}
         className="flex items-center gap-3 cursor-pointer hover:opacity-85 transition-opacity"
@@ -29,8 +37,20 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen,
 
       <div className="flex items-center gap-3">
         <button
+          onClick={toggleTheme}
+          className="p-2 text-stone-700 hover:bg-stone-100 rounded-lg border border-stone-200 transition-all flex items-center justify-center cursor-pointer shadow-xs"
+          title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {darkMode ? (
+            <Sun className="w-4.5 h-4.5 text-amber-500" />
+          ) : (
+            <Moon className="w-4.5 h-4.5 text-stone-500" />
+          )}
+        </button>
+
+        <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="text-stone-700 hover:bg-stone-100 px-3 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 transition-all flex items-center gap-1.5"
+          className="text-stone-700 hover:bg-stone-100 px-3 py-1.5 rounded-lg text-xs font-semibold border border-stone-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
         >
           <Layers className="w-4 h-4 text-stone-500" />
           <span>{isSidebarOpen ? 'Hide Library' : 'Show Library'}</span>

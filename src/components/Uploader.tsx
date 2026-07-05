@@ -247,7 +247,7 @@ export const Uploader: React.FC<UploaderProps> = ({
                 />
                 <label
                   htmlFor="json-import"
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#FCFAF7] hover:bg-stone-100 border border-stone-300 hover:border-stone-400 rounded-xl text-xs font-bold text-stone-700 transition-all text-center cursor-pointer shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-stone-100 hover:bg-stone-200/80 border border-stone-350 hover:border-stone-400 rounded-xl text-xs font-bold text-stone-700 transition-all text-center cursor-pointer shadow-xs"
                 >
                   <Download className="w-3.5 h-3.5 text-amber-600" />
                   <span>Choose JSON File to Import</span>

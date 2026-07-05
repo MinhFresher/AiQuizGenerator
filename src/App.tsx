@@ -69,6 +69,29 @@ export default function App() {
   // Feedback notifications
   const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
 
+  // Global Light/Dark Theme
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem('prepai_darkmode') === 'true';
+  });
+
+  const toggleTheme = () => {
+    setDarkMode(prev => !prev);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('prepai_darkmode', String(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  // Sync standalone dark mode with global dark mode on load
+  useEffect(() => {
+    setStandaloneDarkMode(darkMode);
+  }, [darkMode]);
+
   // On mount: Load study sets from localStorage, fallback to empty array if none
   useEffect(() => {
     const saved = localStorage.getItem('prepai_studysets');
@@ -625,7 +648,7 @@ export default function App() {
   if (standaloneMode) {
     if (!standaloneSet) {
       return (
-        <div className="min-h-screen bg-[#FAF9F5] flex flex-col items-center justify-center p-6 text-center">
+        <div className={`min-h-screen bg-[var(--bg-app)] flex flex-col items-center justify-center p-6 text-center ${darkMode ? 'dark text-stone-200' : 'text-stone-900'}`}>
           <div className="p-4 bg-stone-100 rounded-2xl mb-4">
             <Brain className="w-8 h-8 text-stone-500 animate-pulse" />
           </div>
@@ -756,7 +779,7 @@ export default function App() {
   const isTestingActive = !!currentSetId && activeTab === 'test' && testStarted && !testSubmitted;
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-stone-900 font-sans flex flex-col antialiased">
+    <div className={`min-h-screen bg-[var(--bg-app)] text-stone-900 font-sans flex flex-col antialiased transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
       {/* Visual Header / Brand bar */}
       {!isTestingActive && (
         <Header
@@ -766,6 +789,8 @@ export default function App() {
             setCurrentSetId(null);
             resetTestState();
           }}
+          darkMode={darkMode}
+          toggleTheme={toggleTheme}
         />
       )}
 

@@ -67,7 +67,7 @@ export const FlashcardTab: React.FC<FlashcardTabProps> = ({
           </div>
 
           {/* Back of card */}
-          <div className="absolute inset-0 w-full h-full rounded-3xl bg-[#FAF8F5] border border-stone-200 p-8 flex flex-col justify-between shadow-md backface-hidden rotate-y-180">
+          <div className="absolute inset-0 w-full h-full rounded-3xl bg-stone-100 border border-stone-200 p-8 flex flex-col justify-between shadow-md backface-hidden rotate-y-180">
             <span className="text-[9px] uppercase tracking-widest font-mono text-amber-800 font-bold block">
               AI Explanation / Back
             </span>

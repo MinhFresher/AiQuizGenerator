@@ -415,7 +415,7 @@ export const TestTab: React.FC<TestTabProps> = ({
   return (
     <div className="space-y-6">
       {/* Mode Toggle Controls */}
-      <div className="flex flex-wrap items-center justify-between bg-[#FCFAF7] border border-stone-200 p-4 rounded-3xl gap-3">
+      <div className="flex flex-wrap items-center justify-between bg-[var(--bg-header)] border border-stone-200 p-4 rounded-3xl gap-3">
         <div className="flex items-center gap-2">
           <button
             onClick={startPracticeMode}

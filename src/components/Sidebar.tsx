@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Layers, Award, Plus, Trash2, ExternalLink, Flame } from 'lucide-react';
+import { Layers, Award, Plus, Trash2, ExternalLink, Flame, ChevronLeft, ChevronRight } from 'lucide-react';
 import { StudySet } from '../types';
 
 interface SidebarProps {
@@ -34,6 +34,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
   deleteStudySet,
   notify,
 }) => {
+  const [setsPage, setSetsPage] = useState(1);
+  const [testsPage, setTestsPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 5;
+
+  const totalSets = studySets.length;
+  const totalSetsPages = Math.ceil(totalSets / ITEMS_PER_PAGE) || 1;
+  const currentSetsPage = Math.min(setsPage, totalSetsPages);
+  const paginatedSets = studySets.slice(
+    (currentSetsPage - 1) * ITEMS_PER_PAGE,
+    currentSetsPage * ITEMS_PER_PAGE
+  );
+
+  const totalTests = studySets.length;
+  const totalTestsPages = Math.ceil(totalTests / ITEMS_PER_PAGE) || 1;
+  const currentTestsPage = Math.min(testsPage, totalTestsPages);
+  const paginatedTests = studySets.slice(
+    (currentTestsPage - 1) * ITEMS_PER_PAGE,
+    currentTestsPage * ITEMS_PER_PAGE
+  );
   return (
     <AnimatePresence initial={false}>
       {isSidebarOpen && (
@@ -41,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           initial={{ width: 0, opacity: 0 }}
           animate={{ width: 310, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
-          className="border-r border-stone-200 bg-[#FCFAF7] shrink-0 h-[calc(100vh-69px)] overflow-y-auto flex flex-col"
+          className="border-r border-stone-200 bg-[var(--bg-header)] shrink-0 h-[calc(100vh-69px)] overflow-y-auto flex flex-col"
         >
           {/* Tab Switcher inside Sidebar */}
           <div className="p-4 pb-2 border-b border-stone-200">
@@ -90,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Local Study Library
               </h2>
               <div className="space-y-2">
-                {studySets.map(set => {
+                {paginatedSets.map(set => {
                   const isActive = set.id === currentSetId;
                   return (
                     <div
@@ -135,6 +155,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   );
                 })}
               </div>
+
+              {totalSetsPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-150/40">
+                  <button
+                    disabled={currentSetsPage === 1}
+                    onClick={() => setSetsPage(prev => Math.max(prev - 1, 1))}
+                    className="p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 disabled:opacity-40 disabled:hover:bg-transparent text-stone-600 transition-all cursor-pointer flex items-center justify-center"
+                    title="Previous Page"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-[10px] font-mono font-bold text-stone-500">
+                    Page {currentSetsPage} of {totalSetsPages}
+                  </span>
+                  <button
+                    disabled={currentSetsPage === totalSetsPages}
+                    onClick={() => setSetsPage(prev => Math.min(prev + 1, totalSetsPages))}
+                    className="p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 disabled:opacity-40 disabled:hover:bg-transparent text-stone-600 transition-all cursor-pointer flex items-center justify-center"
+                    title="Next Page"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="p-5 border-b border-stone-200">
@@ -148,7 +192,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     No tests available yet. Create one by uploading a file.
                   </div>
                 ) : (
-                  studySets.map(set => {
+                  paginatedTests.map(set => {
                     const isActive = set.id === currentSetId;
                     const scorePercentage = set.lastScore 
                       ? Math.round((set.lastScore.score / set.lastScore.total) * 100) 
@@ -264,6 +308,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   })
                 )}
               </div>
+
+              {totalTestsPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-150/40">
+                  <button
+                    disabled={currentTestsPage === 1}
+                    onClick={() => setTestsPage(prev => Math.max(prev - 1, 1))}
+                    className="p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 disabled:opacity-40 disabled:hover:bg-transparent text-stone-600 transition-all cursor-pointer flex items-center justify-center"
+                    title="Previous Page"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-[10px] font-mono font-bold text-stone-500">
+                    Page {currentTestsPage} of {totalTestsPages}
+                  </span>
+                  <button
+                    disabled={currentTestsPage === totalTestsPages}
+                    onClick={() => setTestsPage(prev => Math.min(prev + 1, totalTestsPages))}
+                    className="p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 disabled:opacity-40 disabled:hover:bg-transparent text-stone-600 transition-all cursor-pointer flex items-center justify-center"
+                    title="Next Page"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

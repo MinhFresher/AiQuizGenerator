@@ -1,16 +1,56 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap');
 @import "tailwindcss";
 
+:root {
+  --bg-app: #FAF9F5;
+  --bg-card: #ffffff;
+  --bg-header: #FCFAF7;
+  --text-primary: #1c1917; /* stone-900 */
+  --text-primary-darker: #0c0a09; /* stone-950 */
+  --text-secondary: #57534e; /* stone-600 */
+  --text-muted: #78716c; /* stone-500 */
+  --border-color: #e7e5e4; /* stone-200 */
+  --bg-input: #f5f5f4; /* stone-100 */
+}
+
+.dark {
+  --bg-app: #121211;
+  --bg-card: #1c1b18;
+  --bg-header: #181715;
+  --text-primary: #f5f5f4; /* stone-100 */
+  --text-primary-darker: #fafaf9; /* stone-50 */
+  --text-secondary: #d6d3d1; /* stone-300 */
+  --text-muted: #a8a29e; /* stone-400 */
+  --border-color: #2e2c29; /* stone-800 */
+  --bg-input: #242321;
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-serif: "Lora", Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: "Fira Code", monospace;
+  
+  --color-stone-50: var(--bg-input);
+  --color-stone-100: var(--bg-input);
+  --color-stone-150: var(--border-color);
+  --color-stone-200: var(--border-color);
+  --color-stone-250: var(--border-color);
+  --color-stone-300: var(--text-muted);
+  --color-stone-400: var(--text-muted);
+  --color-stone-500: var(--text-muted);
+  --color-stone-600: var(--text-secondary);
+  --color-stone-700: var(--text-secondary);
+  --color-stone-800: var(--text-primary);
+  --color-stone-900: var(--text-primary);
+  --color-stone-950: var(--text-primary-darker);
+  
+  --color-white: var(--bg-card);
 }
 
 /* Custom editorial styles for Markdown study guides */
 .markdown-body {
   font-family: var(--font-serif);
-  color: #2e2e2c;
+  color: var(--text-secondary);
   line-height: 1.75;
 }
 
@@ -19,9 +59,9 @@
   font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 1rem;
-  color: #111110;
+  color: var(--text-primary-darker);
   letter-spacing: -0.025em;
-  border-bottom: 1px solid #e5e5e0;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.5rem;
 }
 
@@ -30,7 +70,7 @@
   font-weight: 600;
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
-  color: #1a1a19;
+  color: var(--text-primary-darker);
   letter-spacing: -0.02em;
 }
 
@@ -39,7 +79,7 @@
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #222220;
+  color: var(--text-primary);
 }
 
 .markdown-body p {
@@ -65,7 +105,7 @@
 
 .markdown-body blockquote {
   border-left: 4px solid #10b981;
-  background-color: #f7faf8;
+  background-color: var(--bg-input);
   padding: 0.75rem 1rem;
   margin-bottom: 1.25rem;
   font-style: italic;
@@ -74,13 +114,13 @@
 
 .markdown-body strong {
   font-weight: 600;
-  color: #111110;
+  color: var(--text-primary-darker);
 }
 
 .markdown-body code {
   font-family: var(--font-mono);
   font-size: 0.875em;
-  background-color: #f4f4f0;
+  background-color: var(--bg-input);
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
 }
@@ -92,16 +132,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #fcfcf9;
+  background: var(--bg-app);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e2e2da;
+  background: var(--border-color);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #cbcbbf;
+  background: var(--text-muted);
 }
 
 /* Flashcard 3D effects */
