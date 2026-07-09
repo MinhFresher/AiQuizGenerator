@@ -265,7 +265,8 @@ export default function App() {
         });
       }
 
-      const response = await fetch('/api/generate-study-set', {
+      const apiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '') + '/api/generate-study-set';
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -274,17 +275,38 @@ export default function App() {
           fileData,
           generationCount,
           customInstructions: generationCount === 'auto' 
-            ? `Extract ALL multiple-choice questions found in the file, or generate a comprehensive set of 10-30 questions if none are in the file. ${customInstructions}` 
+            ? `Extract ALL multiple-choice questions found in the file (up to 80), or generate a comprehensive set of 15-40 questions if none are in the file. ${customInstructions}` 
             : `Generate ${generationCount} multiple-choice questions. ${customInstructions}`
         })
       });
 
       if (!response.ok) {
-        const errJson = await response.json();
-        throw new Error(errJson.error || 'Gemini study set service failed.');
+        let errMsg = 'Gemini study set service failed.';
+        try {
+          const errText = await response.text();
+          try {
+            const errJson = JSON.parse(errText);
+            errMsg = errJson.error || errMsg;
+          } catch {
+            if (errText.includes('<!doctype') || errText.includes('<html') || response.status === 504 || response.status === 502) {
+              errMsg = 'The server took too long to respond. This usually happens when extracting a very large number of questions (e.g. over 30 or 50) from dense documents. Try choosing a specific question count (like 20 or 30) instead of "No Limit / Extract All".';
+            } else {
+              errMsg = errText.substring(0, 200) || errMsg;
+            }
+          }
+        } catch (readErr) {
+          errMsg = 'Failed to read error response from server.';
+        }
+        throw new Error(errMsg);
       }
 
-      const generatedSet = await response.json();
+      let generatedSet;
+      try {
+        const responseText = await response.text();
+        generatedSet = JSON.parse(responseText);
+      } catch (parseErr) {
+        throw new Error('Failed to parse study set response as JSON. The generated data might have been cut off or formatted incorrectly by the model.');
+      }
 
       // Add client-side tracking variables
       const cleanSet: StudySet = {

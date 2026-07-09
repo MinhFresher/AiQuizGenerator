@@ -5,8 +5,16 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import mammoth from 'mammoth';
+import { Agent, setGlobalDispatcher } from 'undici';
 
 dotenv.config();
+
+// Set global fetch timeout to 5 minutes (300,000 ms) to allow large question extractions
+setGlobalDispatcher(new Agent({
+  headersTimeout: 300000,
+  bodyTimeout: 300000,
+  keepAliveTimeout: 300000,
+}));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,12 +55,12 @@ app.post('/api/generate-study-set', async (req, res) => {
     }
 
     const isAuto = generationCount === 'auto' || generationCount === 'all';
-    const targetCount = isAuto ? 30 : Math.min(Math.max(Number(generationCount) || 10, 1), 80);
+    const targetCount = isAuto ? 80 : Math.min(Math.max(Number(generationCount) || 10, 1), 80);
     const ai = getGeminiClient();
     let contents: any[] = [];
     
     const sizeNote = isAuto
-      ? `\nIMPORTANT: Since automatic question extraction is enabled, extract ALL the questions present in the file (up to a maximum limit of 80 to fit the response token window). If there are e.g. 25 questions, extract exactly 25. If there are e.g. 100 questions, extract the first 80. If the file is a textbook chapter/general reading material with no pre-existing questions, generate an appropriate number of questions (between 10 and 30) based on the depth and length of the content.`
+      ? `\nIMPORTANT: Since automatic question extraction is enabled, extract ALL the questions present in the file (up to a maximum limit of 80 to fit the response token window). If there are e.g. 25 questions, extract exactly 25. If there are e.g. 100 questions, extract the first 80. Keep the explanation fields clear but highly concise (1-2 sentences) to guarantee the entire payload fits within the response limit without being cut off. If the file is a textbook chapter/general reading material with no pre-existing questions, generate an appropriate number of questions (between 15 and 40) based on the depth and length of the content.`
       : (targetCount > 20
         ? `\nIMPORTANT: Since the user requested a large number of questions (${targetCount}), keep the explanation fields clear but highly concise (1-2 sentences) to guarantee the entire payload fits within the response limit without being cut off.`
         : '');
@@ -64,12 +72,12 @@ Analyze the uploaded document:
 1. IF the document primarily consists of multiple-choice questions (with or without answers listed):
    - Extract those exact questions. Do not make up random questions if there are clear ones present.
    - For any questions that do not have answers specified, solve them accurately using your expert knowledge.
-   - Write a detailed, friendly, step-by-step explanation for each correct option explaining why it is correct and why other options are incorrect.
+   - Write a friendly, step-by-step explanation for each correct option explaining why it is correct and why other options are incorrect. Keep it to 1-2 concise sentences.
    - Maintain the structure of the questions found. ${isAuto ? "Extract ALL questions present in the document up to 80." : `Extract/generate exactly ${targetCount} questions.`}
 
 2. IF the document is general reading material, notes, slides, or chapters:
    - Identify the core concepts, definitions, formulas, and relationships.
-   - Generate a high-quality, comprehensive multiple-choice test consisting of ${isAuto ? "an appropriate number of questions (between 10 and 30 depending on complexity)" : `exactly ${targetCount} questions`} that thoroughly test the reader's comprehension.
+   - Generate a high-quality, comprehensive multiple-choice test consisting of ${isAuto ? "an appropriate number of questions (between 15 and 40 depending on complexity)" : `exactly ${targetCount} questions`} that thoroughly test the reader's comprehension.
    - Each question must have 4 clear, plausible options, one correct answer, and a robust explanation.
 
 3. FOR BOTH CASES:
@@ -146,7 +154,7 @@ Provide your response in strict JSON format matching the schema requested. Ensur
             questions: {
               type: Type.ARRAY,
               description: isAuto 
-                ? 'List of multiple choice questions extracted or generated. Since auto-detect is enabled, extract ALL pre-existing questions in the file (up to 80), or generate a comprehensive set of 10-30 questions if none are in the file.'
+                ? 'List of multiple choice questions extracted or generated. Since auto-detect is enabled, extract ALL pre-existing questions in the file (up to 80), or generate a comprehensive set of 15-40 questions if none are in the file.'
                 : `List of multiple choice questions extracted or generated from the material (exactly ${targetCount} items)`,
               items: {
                 type: Type.OBJECT,
