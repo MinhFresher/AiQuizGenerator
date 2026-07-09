@@ -27,6 +27,11 @@ export default function App() {
   const [customInstructions, setCustomInstructions] = useState('');
   const [generationCount, setGenerationCount] = useState<number | string>(10);
   const [dragActive, setDragActive] = useState(false);
+  
+  // Generation Options for performance & cost optimization
+  const [includeQuiz, setIncludeQuiz] = useState(true);
+  const [includeFlashcards, setIncludeFlashcards] = useState(true);
+  const [includeStudyGuide, setIncludeStudyGuide] = useState(true);
 
   // Active Test interface states
   const [testMode, setTestMode] = useState<'practice' | 'exam'>('practice');
@@ -227,6 +232,11 @@ export default function App() {
       return;
     }
 
+    if (!includeQuiz && !includeFlashcards && !includeStudyGuide) {
+      notify('Please select at least one material type to generate (Quiz, Flashcards, or Study Guide).', 'error');
+      return;
+    }
+
     setIsGenerating(true);
     notify('PrepAI is extracting data & generating materials with Gemini...', 'info');
 
@@ -276,7 +286,10 @@ export default function App() {
           generationCount,
           customInstructions: generationCount === 'auto' 
             ? `Extract ALL multiple-choice questions found in the file (up to 80), or generate a comprehensive set of 15-40 questions if none are in the file. ${customInstructions}` 
-            : `Generate ${generationCount} multiple-choice questions. ${customInstructions}`
+            : `Generate ${generationCount} multiple-choice questions. ${customInstructions}`,
+          includeQuiz,
+          includeFlashcards,
+          includeStudyGuide
         })
       });
 
@@ -326,7 +339,7 @@ export default function App() {
         studyGuide: generatedSet.studyGuide || '# Study Guide\nNo guide was generated.'
       };
 
-      if (cleanSet.questions.length === 0) {
+      if (includeQuiz && cleanSet.questions.length === 0) {
         throw new Error('Gemini failed to extract questions. Please check your uploaded content.');
       }
 
@@ -340,10 +353,16 @@ export default function App() {
       setPastedText('');
       setCustomInstructions('');
 
-      // Focus test tab
-      setActiveTab('test');
+      // Focus first available generated tab
+      if (includeQuiz) {
+        setActiveTab('test');
+      } else if (includeFlashcards) {
+        setActiveTab('flashcards');
+      } else {
+        setActiveTab('guide');
+      }
       resetTestState();
-      notify('Study set created successfully! Complete study guide and test are ready.', 'success');
+      notify('Study set created successfully! Selected study materials are ready.', 'success');
     } catch (error: any) {
       console.error(error);
       notify(`Generation Error: ${error.message}`, 'error');
@@ -910,6 +929,12 @@ export default function App() {
               setCurrentSetId={setCurrentSetId}
               deleteStudySet={deleteStudySet}
               handleExportStudySet={handleExportStudySet}
+              includeQuiz={includeQuiz}
+              setIncludeQuiz={setIncludeQuiz}
+              includeFlashcards={includeFlashcards}
+              setIncludeFlashcards={setIncludeFlashcards}
+              includeStudyGuide={includeStudyGuide}
+              setIncludeStudyGuide={setIncludeStudyGuide}
             />
           )}
         </main>

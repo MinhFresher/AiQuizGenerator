@@ -47,7 +47,16 @@ const PORT = 3000;
 // Main endpoint: generates the full Study Set (Test, Flashcards, Study Guide) from uploaded material
 app.post('/api/generate-study-set', async (req, res) => {
   try {
-    const { fileName, fileType, fileData, customInstructions, generationCount = 10 } = req.body;
+    const { 
+      fileName, 
+      fileType, 
+      fileData, 
+      customInstructions, 
+      generationCount = 10,
+      includeQuiz = true,
+      includeFlashcards = true,
+      includeStudyGuide = true
+    } = req.body;
 
     if (!fileData) {
       res.status(400).json({ error: 'File data is required.' });
@@ -65,27 +74,43 @@ app.post('/api/generate-study-set', async (req, res) => {
         ? `\nIMPORTANT: Since the user requested a large number of questions (${targetCount}), keep the explanation fields clear but highly concise (1-2 sentences) to guarantee the entire payload fits within the response limit without being cut off.`
         : '');
 
-    const basePrompt = `You are an elite academic tutor, instructional designer, and test preparation expert.
+    let basePrompt = `You are an elite academic tutor, instructional designer, and test preparation expert.
 Your goal is to parse the attached document/text and generate a comprehensive, highly-polished Study Set.
 
-Analyze the uploaded document:
-1. IF the document primarily consists of multiple-choice questions (with or without answers listed):
-   - Extract those exact questions. Do not make up random questions if there are clear ones present.
-   - For any questions that do not have answers specified, solve them accurately using your expert knowledge.
-   - Write a friendly, step-by-step explanation for each correct option explaining why it is correct and why other options are incorrect. Keep it to 1-2 concise sentences.
-   - Maintain the structure of the questions found. ${isAuto ? "Extract ALL questions present in the document up to 80." : `Extract/generate exactly ${targetCount} questions.`}
+Analyze the uploaded document:`;
 
-2. IF the document is general reading material, notes, slides, or chapters:
-   - Identify the core concepts, definitions, formulas, and relationships.
-   - Generate a high-quality, comprehensive multiple-choice test consisting of ${isAuto ? "an appropriate number of questions (between 15 and 40 depending on complexity)" : `exactly ${targetCount} questions`} that thoroughly test the reader's comprehension.
-   - Each question must have 4 clear, plausible options, one correct answer, and a robust explanation.
+    if (includeQuiz) {
+      basePrompt += `\n\n1. MULTIPLE CHOICE QUIZ:
+- IF the document primarily consists of multiple-choice questions (with or without answers listed):
+  - Extract those exact questions. Do not make up random questions if there are clear ones present.
+  - For any questions that do not have answers specified, solve them accurately using your expert knowledge.
+  - Write a friendly, step-by-step explanation for each correct option explaining why it is correct and why other options are incorrect. Keep it to 1-2 concise sentences.
+  - Maintain the structure of the questions found. ${isAuto ? "Extract ALL questions present in the document up to 80." : `Extract/generate exactly ${targetCount} questions.`}
 
-3. FOR BOTH CASES:
-   - Generate 5 to 10 high-quality Flashcards (front: key concept/question, back: concise definition/answer) for active recall.
-   - Generate a beautiful, highly structured Study Guide in Markdown summarizing the core concepts, key vocabulary, and major takeaways from the material. Use headers, bullet points, and highlight bold text for readability.
-${sizeNote}
+- IF the document is general reading material, notes, slides, or chapters:
+  - Identify the core concepts, definitions, formulas, and relationships.
+  - Generate a high-quality, comprehensive multiple-choice test consisting of ${isAuto ? "an appropriate number of questions (between 15 and 40 depending on complexity)" : `exactly ${targetCount} questions`} that thoroughly test the reader's comprehension.
+  - Each question must have 4 clear, plausible options, one correct answer, and a robust explanation.
+  ${sizeNote}`;
+    } else {
+      basePrompt += `\n\n- Do NOT generate any multiple choice questions. Keep the questions array in the response completely empty: [].`;
+    }
 
-${customInstructions ? `Special User Instructions to follow: "${customInstructions}"` : ''}
+    if (includeFlashcards) {
+      basePrompt += `\n\n2. ACTIVE RECALL FLASHCARDS:
+- Generate 5 to 10 high-quality Flashcards (front: key concept/question, back: concise definition/answer) for active recall based on the material.`;
+    } else {
+      basePrompt += `\n\n- Do NOT generate any flashcards. Keep the flashcards array in the response completely empty: [].`;
+    }
+
+    if (includeStudyGuide) {
+      basePrompt += `\n\n3. COMPREHENSIVE STUDY GUIDE:
+- Generate a beautiful, highly structured Study Guide in Markdown summarizing the core concepts, key vocabulary, and major takeaways from the material. Use headers, bullet points, and highlight bold text for readability.`;
+    } else {
+      basePrompt += `\n\n- Do NOT generate a study guide. Keep the studyGuide string in the response completely empty: "".`;
+    }
+
+    basePrompt += `\n\n${customInstructions ? `Special User Instructions to follow: "${customInstructions}"` : ''}
 
 Provide your response in strict JSON format matching the schema requested. Ensure all text and markdown are clean and properly escaped.`;
 
@@ -138,7 +163,7 @@ Provide your response in strict JSON format matching the schema requested. Ensur
       ];
     }
 
-    showLog(`Generating study set for "${fileName}" (type: ${fileType}) using gemini-3.5-flash...`);
+    showLog(`Generating study set for "${fileName}" (type: ${fileType}, quiz: ${includeQuiz}, flashcards: ${includeFlashcards}, guide: ${includeStudyGuide}) using gemini-3.5-flash...`);
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.5-flash',

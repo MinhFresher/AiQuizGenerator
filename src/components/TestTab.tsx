@@ -62,6 +62,18 @@ export const TestTab: React.FC<TestTabProps> = ({
     return () => clearTimeout(timer);
   }, [currentQuestionIndex]);
 
+  if (!currentSet.questions || currentSet.questions.length === 0) {
+    return (
+      <div className="text-center py-12 px-6 bg-white border border-stone-200 rounded-3xl max-w-md mx-auto">
+        <Award className="w-12 h-12 text-amber-500/80 mx-auto mb-4 animate-pulse" />
+        <h3 className="font-serif text-lg font-bold text-stone-800">No Interactive Quiz Generated</h3>
+        <p className="text-xs text-stone-500 mt-2 leading-relaxed">
+          The quiz was not selected during generation for this study set. You can always include it next time by checking the "Interactive Quiz" option!
+        </p>
+      </div>
+    );
+  }
+
   if (!testStarted) {
     return (
       <div className="bg-white border border-stone-200/80 rounded-3xl p-8 md:p-12 shadow-xs flex flex-col items-center text-center max-w-3xl mx-auto space-y-8 animate-fade-in">

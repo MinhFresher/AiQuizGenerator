@@ -34,6 +34,12 @@ interface UploaderProps {
   setCurrentSetId: (id: string | null) => void;
   deleteStudySet: (id: string) => void;
   handleExportStudySet: (set: StudySet) => void;
+  includeQuiz: boolean;
+  setIncludeQuiz: (val: boolean) => void;
+  includeFlashcards: boolean;
+  setIncludeFlashcards: (val: boolean) => void;
+  includeStudyGuide: boolean;
+  setIncludeStudyGuide: (val: boolean) => void;
 }
 
 export const Uploader: React.FC<UploaderProps> = ({
@@ -56,6 +62,12 @@ export const Uploader: React.FC<UploaderProps> = ({
   setCurrentSetId,
   deleteStudySet,
   handleExportStudySet,
+  includeQuiz,
+  setIncludeQuiz,
+  includeFlashcards,
+  setIncludeFlashcards,
+  includeStudyGuide,
+  setIncludeStudyGuide,
 }) => {
   const [activeDashboardTab, setActiveDashboardTab] = useState<'create' | 'library'>('create');
 
@@ -158,19 +170,79 @@ export const Uploader: React.FC<UploaderProps> = ({
                 </div>
               )}
 
+              {/* Materials to Generate (Selective Toggles) */}
+              <div className="space-y-2.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-500">
+                  Select Study Materials to Generate
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    includeQuiz 
+                      ? 'border-amber-500 bg-amber-50/20 text-stone-900 font-semibold' 
+                      : 'border-stone-200 bg-stone-50/50 hover:bg-stone-50 text-stone-500'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={includeQuiz}
+                      onChange={(e) => setIncludeQuiz(e.target.checked)}
+                      className="accent-amber-500 w-4 h-4 cursor-pointer"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-xs text-stone-900">Interactive Quiz</span>
+                      <span className="text-[10px] text-stone-400 font-normal">Multiple-choice test</span>
+                    </div>
+                  </label>
+
+                  <label className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    includeFlashcards 
+                      ? 'border-amber-500 bg-amber-50/20 text-stone-900 font-semibold' 
+                      : 'border-stone-200 bg-stone-50/50 hover:bg-stone-50 text-stone-500'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={includeFlashcards}
+                      onChange={(e) => setIncludeFlashcards(e.target.checked)}
+                      className="accent-amber-500 w-4 h-4 cursor-pointer"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-xs text-stone-900">Active Flashcards</span>
+                      <span className="text-[10px] text-stone-400 font-normal">For memory recall</span>
+                    </div>
+                  </label>
+
+                  <label className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    includeStudyGuide 
+                      ? 'border-amber-500 bg-amber-50/20 text-stone-900 font-semibold' 
+                      : 'border-stone-200 bg-stone-50/50 hover:bg-stone-50 text-stone-500'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={includeStudyGuide}
+                      onChange={(e) => setIncludeStudyGuide(e.target.checked)}
+                      className="accent-amber-500 w-4 h-4 cursor-pointer"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-xs text-stone-900">Study Guide</span>
+                      <span className="text-[10px] text-stone-400 font-normal">Markdown core summary</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               {/* Settings Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                <div className={includeQuiz ? "" : "opacity-40 pointer-events-none"}>
                   <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-1.5">
                     Target Question Count
                   </label>
                   <select
+                    disabled={!includeQuiz}
                     value={generationCount}
                     onChange={(e) => {
                       const val = e.target.value;
                       setGenerationCount(val === 'auto' ? 'auto' : parseInt(val, 10));
                     }}
-                    className="w-full text-xs p-3 bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-stone-400"
+                    className="w-full text-xs p-3 bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-stone-400 disabled:bg-stone-100"
                   >
                     <option value="auto">✨ Extract All Questions from File (Automatic / No Limit)</option>
                     <option value={5}>5 Questions (Short Quiz)</option>

@@ -23,6 +23,18 @@ export const FlashcardTab: React.FC<FlashcardTabProps> = ({
   handlePrevCard,
   handleNextCard,
 }) => {
+  if (!currentSet.flashcards || currentSet.flashcards.length === 0) {
+    return (
+      <div className="text-center py-12 px-6 bg-white border border-stone-200 rounded-3xl max-w-md mx-auto">
+        <Layers className="w-12 h-12 text-amber-500/80 mx-auto mb-4 animate-pulse" />
+        <h3 className="font-serif text-lg font-bold text-stone-800">No Flashcards Generated</h3>
+        <p className="text-xs text-stone-500 mt-2 leading-relaxed">
+          Flashcards were not selected during generation for this study set. You can always include them next time by checking the "Active Flashcards" option!
+        </p>
+      </div>
+    );
+  }
+
   const currentCard = currentSet.flashcards[flashcardIndex];
 
   return (
